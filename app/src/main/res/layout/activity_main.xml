@@ -10,10 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/my_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
+            android:elevation="4dp"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
             <ImageButton
@@ -31,13 +33,14 @@
                 android:text="HickingTracker"
                 android:textColor="?attr/colorOnPrimary"
                 android:textSize="20dp"/>
-        </android.support.v7.widget.Toolbar>
+        </androidx.appcompat.widget.Toolbar>
 
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
             <EditText
+                android:id="@+id/name_edittext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
@@ -51,28 +54,34 @@
                 android:layout_marginEnd="16dp"
                 android:layout_alignParentBottom="true">
                 <Button
+                    android:id="@+id/start_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:text="Start">
                 </Button>
+                <ToggleButton
+                    android:id="@+id/pause_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:textOff="Continue"
+                    android:textOn="Pause"
+                    android:visibility="gone"
+                    android:checked="true">
+                </ToggleButton>
                 <Button
+                    android:id="@+id/end_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:text="End">
+                    android:text="Stop">
                 </Button>
             </LinearLayout>
 
-            <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:map="http://schemas.android.com/apk/res-auto"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-                android:id="@+id/map"
-                android:layout_margin="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
         </LinearLayout>
     </LinearLayout>
 
