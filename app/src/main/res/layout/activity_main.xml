@@ -81,7 +81,13 @@
                     android:text="Stop">
                 </Button>
             </LinearLayout>
-
+            <TextView
+                android:id="@+id/test_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="0"
+                android:textSize="40dp"/>
         </LinearLayout>
     </LinearLayout>
 
