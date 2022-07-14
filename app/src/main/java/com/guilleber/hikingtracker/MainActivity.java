@@ -1,20 +1,16 @@
 package com.guilleber.hikingtracker;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +18,10 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,7 +41,16 @@ public class MainActivity extends AppCompatActivity {
     private TextView mLng;
     private TextView mAlt;
 
-    private ServiceConnection connection = new ServiceConnection() {
+    private String mIllegalChar = "~#^|$%&*!";
+    private InputFilter mFilter = new InputFilter() {
+
+        @Override
+        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+            return ((String)source).replace(" ", "_").replaceAll("[^_a-zA-Z0-9]", "");
+        }
+    };
+
+    private final ServiceConnection connection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -67,11 +76,12 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private ActivityResultLauncher<String[]> requestLocationPermission =
+    private final ActivityResultLauncher<String[]> requestLocationPermission =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
                 Boolean fineLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false);
-                if (fineLocationGranted) {
+                if (fineLocationGranted != null && fineLocationGranted) {
                     Intent intent = new Intent(this, GPSTrackingService.class);
+                    intent.putExtra("Name", mNameEdit.getText().toString());
                     startService(intent);
                     bindService(intent, connection, Context.BIND_AUTO_CREATE);
                 }
@@ -84,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mNameEdit = findViewById(R.id.name_edittext);
+        mNameEdit.setFilters(new InputFilter[] {mFilter});
         mNameEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

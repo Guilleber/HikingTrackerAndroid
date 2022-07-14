@@ -138,6 +138,10 @@
                     android:textSize="20dp"
                     android:layout_toRightOf="@+id/alt_label"/>
             </RelativeLayout>
+            <com.guilleber.hikingtracker.OfflineMap
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="16dp"/>
         </LinearLayout>
     </LinearLayout>
 

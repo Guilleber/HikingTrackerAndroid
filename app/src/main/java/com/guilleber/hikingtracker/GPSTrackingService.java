@@ -8,26 +8,36 @@ import android.location.Location;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.util.Vector;
 
 public class GPSTrackingService extends Service {
     private final IBinder mBinder = new LocalBinder();
-    private int counter = 0;
+
+    private String mName;
+    private final int mMinDistBetween = 10;
 
     private Location mCurrLocation = null;
-
-    private Handler mRefreshHandler;
-    private Runnable mRefreshRunnable;
-    private final static int UPDATE_INTERVAL = 1000;
+    private Vector<Double> mLatMemory = new Vector<>();
+    private Vector<Double> mLngMemory = new Vector<>();
+    private Vector<Integer> mAltMemory = new Vector<>();
 
     private FusedLocationProviderClient mFusedLocationClient;
+    private LocationCallback mLocationCallback;
+    private final LocationRequest mLocationRequest = LocationRequest.create();
 
     public class LocalBinder extends Binder {
         GPSTrackingService getService() {
@@ -38,33 +48,45 @@ public class GPSTrackingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+        mName = (String)intent.getExtras().get("Name");
+
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        mRefreshHandler = new Handler();
-        mRefreshRunnable = new Runnable() {
+        mLocationRequest.setPriority(Priority.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(1000);
+        mLocationRequest.setMaxWaitTime(1000);
+        mLocationRequest.setMaxWaitTime(1000);
+        mLocationRequest.setSmallestDisplacement(5);
+
+        mLocationCallback = new LocationCallback() {
             @Override
-            public void run() {
-                if(ContextCompat.checkSelfPermission(GPSTrackingService.this, Manifest.permission.ACCESS_FINE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED)
-                {
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
                     return;
                 }
+                for (Location location : locationResult.getLocations()) {
+                    Log.d("LAT", String.valueOf(location.getLatitude()));
+                    mCurrLocation = location;
 
-                mFusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-                        .addOnSuccessListener(new OnSuccessListener<Location>() {
-                            @Override
-                            public void onSuccess(Location location) {
-                                // Got last known location. In some rare situations this can be null.
-                                if (location != null) {
-                                    mCurrLocation = location;
-                                }
-                            }
-                        });
-
-                mRefreshHandler.postDelayed(mRefreshRunnable, UPDATE_INTERVAL);
+                    if(mLatMemory.size() > 0) {
+                        float results[] = new float[1];
+                        Location.distanceBetween(mLatMemory.lastElement(), mLngMemory.lastElement(), location.getLatitude(), location.getLongitude(), results);
+                        if(results[0] >= mMinDistBetween) {
+                            mLatMemory.add(location.getLatitude());
+                            mLngMemory.add(location.getLongitude());
+                            mAltMemory.add((int)location.getAltitude());
+                        }
+                    } else {
+                        mLatMemory.add(location.getLatitude());
+                        mLngMemory.add(location.getLongitude());
+                        mAltMemory.add((int)location.getAltitude());
+                    }
+                }
             }
         };
-        mRefreshHandler.postDelayed(mRefreshRunnable, UPDATE_INTERVAL);
+
+        startLocationUpdates();
+
         return START_NOT_STICKY;
     }
 
@@ -72,6 +94,16 @@ public class GPSTrackingService extends Service {
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
+
+    public void resume() {
+        startLocationUpdates();
+    }
+
+    private void startLocationUpdates() {
+        if(ContextCompat.checkSelfPermission(GPSTrackingService.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.getMainLooper());
+    }
+
 
     public double getCurrAlt() {
         if(mCurrLocation != null)
