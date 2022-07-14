@@ -6,11 +6,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -19,8 +19,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.Vector;
 
@@ -60,16 +58,13 @@ public class GPSTrackingService extends Service {
 
         mLocationCallback = new LocationCallback() {
             @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
+            public void onLocationResult(@NonNull LocationResult locationResult) {
                 for (Location location : locationResult.getLocations()) {
                     Log.d("LAT", String.valueOf(location.getLatitude()));
                     mCurrLocation = location;
 
                     if(mLatMemory.size() > 0) {
-                        float results[] = new float[1];
+                        float[] results = new float[1];
                         Location.distanceBetween(mLatMemory.lastElement(), mLngMemory.lastElement(), location.getLatitude(), location.getLongitude(), results);
                         if(results[0] >= mMinDistBetween) {
                             mLatMemory.add(location.getLatitude());
@@ -104,6 +99,13 @@ public class GPSTrackingService extends Service {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.getMainLooper());
     }
 
+    protected void pause() {
+        stopLocationUpdates();
+    }
+
+    private void stopLocationUpdates() {
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+    }
 
     public double getCurrAlt() {
         if(mCurrLocation != null)

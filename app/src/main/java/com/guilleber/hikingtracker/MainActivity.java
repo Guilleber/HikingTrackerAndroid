@@ -132,8 +132,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(b && mGPSBounded) {
+                    mGPSService.resume();
                     mRefreshHandler.postDelayed(mRefreshRunnable,UPDATE_INTERVAL);
                 } else {
+                    mGPSService.pause();
                     mRefreshHandler.removeCallbacks(mRefreshRunnable);
                 }
             }
