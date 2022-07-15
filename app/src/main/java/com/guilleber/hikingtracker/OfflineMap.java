@@ -32,7 +32,7 @@ public class OfflineMap extends View {
     private Vector<Double> mLngMemory = new Vector<>();
 
     private ScaleGestureDetector mScaleDetector;
-    private float mScaleFactor;
+    private float mScaleFactor = 1.0f;
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override

@@ -166,5 +166,6 @@ public class GPSTrackingService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        stopSelf();
     }
 }

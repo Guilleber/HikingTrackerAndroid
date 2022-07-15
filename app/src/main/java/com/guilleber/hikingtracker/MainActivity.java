@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mAlt;
 
     private OfflineMap mOfflineMap;
+    private ElevationMap mElevationMap;
 
     private final InputFilter mFilter = (source, start, end, dest, dstart, dend) -> {
         return source.toString().substring(start, end).replace(" ", "_").replaceAll("[^_a-zA-Z0-9]", "");
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
             GPSTrackingService.LocalBinder binder = (GPSTrackingService.LocalBinder) service;
             mGPSService = binder.getService();
             mOfflineMap.setPosMemory(mGPSService.getLatMemory(), mGPSService.getLngMemory());
+            mElevationMap.setAltMemory(mGPSService.getAltMemory());
             mPauseButton.setChecked(true);
             mGPSBounded = true;
             mNameEdit.setEnabled(false);
@@ -150,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
         mLng = findViewById(R.id.lng);
 
         mOfflineMap = findViewById(R.id.offline_map);
+        mElevationMap = findViewById(R.id.elevation_map);
 
         mRefreshHandler = new Handler();
         mRefreshRunnable = () -> {
@@ -157,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
             mLat.setText(String.format("%.2f", mGPSService.getCurrLat()));
             mLng.setText(String.format("%.2f", mGPSService.getCurrLng()));
             mOfflineMap.invalidate();
+            mElevationMap.invalidate();
             mRefreshHandler.postDelayed(mRefreshRunnable, UPDATE_INTERVAL);
         };
 
