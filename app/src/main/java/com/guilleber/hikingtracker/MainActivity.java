@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,8 +22,10 @@ import android.widget.ToggleButton;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+@RequiresApi(api = Build.VERSION_CODES.O)
 public class MainActivity extends AppCompatActivity {
 
     private EditText mNameEdit;
@@ -53,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
             GPSTrackingService.LocalBinder binder = (GPSTrackingService.LocalBinder) service;
             mGPSService = binder.getService();
             mOfflineMap.setPosMemory(mGPSService.getLatMemory(), mGPSService.getLngMemory());
-            mOfflineMap.setAltMemory(mGPSService.getAltMemory());
             mPauseButton.setChecked(true);
             mGPSBounded = true;
             mNameEdit.setEnabled(false);
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 if (fineLocationGranted != null && fineLocationGranted) {
                     Intent intent = new Intent(this, GPSTrackingService.class);
                     intent.putExtra("Name", mNameEdit.getText().toString());
-                    startService(intent);
+                    startForegroundService(intent);
                     bindService(intent, connection, Context.BIND_AUTO_CREATE);
                 }
             });
@@ -118,7 +120,8 @@ public class MainActivity extends AppCompatActivity {
                 requestLocationPermission.launch(new String[] {
                         Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                        Manifest.permission.FOREGROUND_SERVICE
                 });
 
 

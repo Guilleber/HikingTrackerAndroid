@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.location.Location;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -20,13 +21,13 @@ public class OfflineMap extends View {
     private int mWidth;
     private int mHeight;
     private final int mCircleRadius = 10;
-    private final float mStepSize = 0.00009f;
+    private final int mStepSize = 10;
     private final int mPxPerStep = 30;
-    private final float mConvertRatio = mPxPerStep/mStepSize;
+    private float mConvertRatioX = -1;
+    private float mConvertRatioY = -1;
 
     private Vector<Double> mLatMemory = new Vector<>();
     private Vector<Double> mLngMemory = new Vector<>();
-    private Vector<Integer> mAltMemory = new Vector<>();
 
     public OfflineMap(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -36,12 +37,12 @@ public class OfflineMap extends View {
     private void init() {
         mCircleFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mCircleFillPaint.setStyle(Paint.Style.FILL);
-        mCircleFillPaint.setColor(0xffefe5fd);
+        mCircleFillPaint.setColor(0xff00b0ff);
 
         mCircleStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mCircleStrokePaint.setStyle(Paint.Style.STROKE);
         mCircleStrokePaint.setStrokeWidth(5);
-        mCircleStrokePaint.setColor(0xff9866f4);
+        mCircleStrokePaint.setColor(0xff216ed3);
 
         setBackgroundColor(0xffeceff1);
     }
@@ -66,18 +67,23 @@ public class OfflineMap extends View {
         mLngMemory = lngMemory;
     }
 
-    public void setAltMemory(Vector<Integer> altMemory) {
-        mAltMemory = altMemory;
-    }
-
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if(mLatMemory.size() == 0)
+            return;
+        if(mConvertRatioX == -1) {
+            float[] results = new float[1];
+            Location.distanceBetween(0.0, 0.0, 1.0, 0.0, results);
+            mConvertRatioY = results[0]*mPxPerStep/mStepSize;
+            Location.distanceBetween(mLatMemory.lastElement(), 0.0, mLatMemory.lastElement(), 1.0, results);
+            mConvertRatioX = results[0]*mPxPerStep/mStepSize;
+        }
         int xMiddle = mWidth/2;
         int yMiddle = mHeight/2;
         for(int i = 0; i < mLatMemory.size(); i++) {
-            int x = xMiddle + (int) (mConvertRatio*(mLngMemory.elementAt(i) - mLngMemory.lastElement()));
-            int y = yMiddle + (int) (mConvertRatio*(mLatMemory.lastElement() - mLatMemory.elementAt(i)));
+            int x = xMiddle + (int) (mConvertRatioX*(mLngMemory.elementAt(i) - mLngMemory.lastElement()));
+            int y = yMiddle + (int) (mConvertRatioY*(mLatMemory.lastElement() - mLatMemory.elementAt(i)));
             drawCircle(canvas, x, y);
         }
     }

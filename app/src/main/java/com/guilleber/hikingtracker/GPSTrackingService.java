@@ -1,11 +1,17 @@
 package com.guilleber.hikingtracker;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
@@ -41,6 +47,24 @@ public class GPSTrackingService extends Service {
         GPSTrackingService getService() {
             return GPSTrackingService.this;
         }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        NotificationChannel chan = new NotificationChannel("HickingTracker", "Update service", NotificationManager.IMPORTANCE_NONE);
+        chan.setLightColor(Color.BLUE);
+        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        service.createNotificationChannel(chan);
+
+        Notification.Builder notifBuilder = new Notification.Builder(this)
+                .setContentTitle("HikingTracker: Tracking On")
+                .setContentText("Tracking is currently on and running in background")
+                .setChannelId("HickingTracker")
+                .setSmallIcon(R.drawable.notif_icon);
+        startForeground(1337, notifBuilder.build());
     }
 
     @Override
