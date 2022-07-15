@@ -32,7 +32,8 @@
                 android:layout_height="wrap_content"
                 android:text="HickingTracker"
                 android:textColor="?attr/colorOnPrimary"
-                android:textSize="20dp"/>
+                android:textSize="20dp"
+                tools:ignore="DuplicateIds" />
         </androidx.appcompat.widget.Toolbar>
 
         <LinearLayout
@@ -139,6 +140,7 @@
                     android:layout_toRightOf="@+id/alt_label"/>
             </RelativeLayout>
             <com.guilleber.hikingtracker.OfflineMap
+                android:id="@+id/offline_map"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="16dp"/>

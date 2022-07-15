@@ -128,6 +128,18 @@ public class GPSTrackingService extends Service {
             return 0.0;
     }
 
+    public Vector<Double> getLatMemory() {
+        return mLatMemory;
+    }
+
+    public Vector<Double> getLngMemory() {
+        return mLngMemory;
+    }
+
+    public Vector<Integer> getAltMemory() {
+        return mAltMemory;
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();

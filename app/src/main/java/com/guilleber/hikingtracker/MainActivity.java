@@ -41,14 +41,10 @@ public class MainActivity extends AppCompatActivity {
     private TextView mLng;
     private TextView mAlt;
 
-    private String mIllegalChar = "~#^|$%&*!";
-    private InputFilter mFilter = new InputFilter() {
+    private OfflineMap mOfflineMap;
 
-        @Override
-        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-            return ((String)source).replace(" ", "_").replaceAll("[^_a-zA-Z0-9]", "");
-        }
-    };
+    private String mIllegalChar = "~#^|$%&*!";
+    private InputFilter mFilter = (source, start, end, dest, dstart, dend) -> ((String)source).replace(" ", "_").replaceAll("[^_a-zA-Z0-9]", "");
 
     private final ServiceConnection connection = new ServiceConnection() {
 
@@ -56,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName className, IBinder service) {
             GPSTrackingService.LocalBinder binder = (GPSTrackingService.LocalBinder) service;
             mGPSService = binder.getService();
+            mOfflineMap.setPosMemory(mGPSService.getLatMemory(), mGPSService.getLngMemory());
+            mOfflineMap.setAltMemory(mGPSService.getAltMemory());
             mPauseButton.setChecked(true);
             mGPSBounded = true;
             mNameEdit.setEnabled(false);
@@ -162,6 +160,8 @@ public class MainActivity extends AppCompatActivity {
         mLat = findViewById(R.id.lat);
         mLng = findViewById(R.id.lng);
 
+        mOfflineMap = findViewById(R.id.offline_map);
+
         mRefreshHandler = new Handler();
         mRefreshRunnable = new Runnable() {
             @Override
@@ -169,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 mAlt.setText(String.valueOf(mGPSService.getCurrAlt()));
                 mLat.setText(String.valueOf(mGPSService.getCurrLat()));
                 mLng.setText(String.valueOf(mGPSService.getCurrLng()));
+                mOfflineMap.invalidate();
                 mRefreshHandler.postDelayed(mRefreshRunnable, UPDATE_INTERVAL);
             }
         };
