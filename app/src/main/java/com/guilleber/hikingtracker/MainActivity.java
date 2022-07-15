@@ -5,13 +5,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.text.Editable;
 import android.text.InputFilter;
-import android.text.Spanned;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
@@ -22,10 +20,10 @@ import android.widget.ToggleButton;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-@RequiresApi(api = Build.VERSION_CODES.O)
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
 
     private EditText mNameEdit;
@@ -46,8 +44,9 @@ public class MainActivity extends AppCompatActivity {
 
     private OfflineMap mOfflineMap;
 
-    private String mIllegalChar = "~#^|$%&*!";
-    private InputFilter mFilter = (source, start, end, dest, dstart, dend) -> ((String)source).replace(" ", "_").replaceAll("[^_a-zA-Z0-9]", "");
+    private final InputFilter mFilter = (source, start, end, dest, dstart, dend) -> {
+        return source.toString().substring(start, end).replace(" ", "_").replaceAll("[^_a-zA-Z0-9]", "");
+    };
 
     private final ServiceConnection connection = new ServiceConnection() {
 
@@ -114,48 +113,35 @@ public class MainActivity extends AppCompatActivity {
 
         mStartButton = findViewById(R.id.start_button);
         mStartButton.setEnabled(false);
-        mStartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                requestLocationPermission.launch(new String[] {
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                        Manifest.permission.FOREGROUND_SERVICE
-                });
+        mStartButton.setOnClickListener(v -> requestLocationPermission.launch(new String[] {
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                Manifest.permission.FOREGROUND_SERVICE
+        }));
 
-
-            }
-        });
-
-        mPauseButton = findViewById(R.id.pause_button);
-        mPauseButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b && mGPSBounded) {
-                    mGPSService.resume();
-                    mRefreshHandler.postDelayed(mRefreshRunnable,UPDATE_INTERVAL);
-                } else {
-                    mGPSService.pause();
-                    mRefreshHandler.removeCallbacks(mRefreshRunnable);
-                }
+        mPauseButton = (ToggleButton) findViewById(R.id.pause_button);
+        mPauseButton.setOnCheckedChangeListener((compoundButton, b) -> {
+            if(b && mGPSBounded) {
+                mGPSService.resume();
+                mRefreshHandler.postDelayed(mRefreshRunnable,UPDATE_INTERVAL);
+            } else {
+                mGPSService.pause();
+                mRefreshHandler.removeCallbacks(mRefreshRunnable);
             }
         });
 
         mEndButton = findViewById(R.id.end_button);
-        mEndButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mNameEdit.setEnabled(true);
-                mEndButton.setEnabled(false);
-                mPauseButton.setVisibility(View.GONE);
-                mStartButton.setVisibility(View.VISIBLE);
-                mRefreshHandler.removeCallbacks(mRefreshRunnable);
-                unbindService(connection);
-                mGPSBounded = false;
-                Intent intent = new Intent(v.getContext(), GPSTrackingService.class);
-                stopService(intent);
-            }
+        mEndButton.setOnClickListener(v -> {
+            mNameEdit.setEnabled(true);
+            mEndButton.setEnabled(false);
+            mPauseButton.setVisibility(View.GONE);
+            mStartButton.setVisibility(View.VISIBLE);
+            mRefreshHandler.removeCallbacks(mRefreshRunnable);
+            unbindService(connection);
+            mGPSBounded = false;
+            Intent intent = new Intent(v.getContext(), GPSTrackingService.class);
+            stopService(intent);
         });
         mEndButton.setEnabled(false);
 
@@ -166,15 +152,12 @@ public class MainActivity extends AppCompatActivity {
         mOfflineMap = findViewById(R.id.offline_map);
 
         mRefreshHandler = new Handler();
-        mRefreshRunnable = new Runnable() {
-            @Override
-            public void run() {
-                mAlt.setText(String.valueOf(mGPSService.getCurrAlt()));
-                mLat.setText(String.valueOf(mGPSService.getCurrLat()));
-                mLng.setText(String.valueOf(mGPSService.getCurrLng()));
-                mOfflineMap.invalidate();
-                mRefreshHandler.postDelayed(mRefreshRunnable, UPDATE_INTERVAL);
-            }
+        mRefreshRunnable = () -> {
+            mAlt.setText((int) mGPSService.getCurrAlt() + " m");
+            mLat.setText(String.format("%.2f", mGPSService.getCurrLat()));
+            mLng.setText(String.format("%.2f", mGPSService.getCurrLng()));
+            mOfflineMap.invalidate();
+            mRefreshHandler.postDelayed(mRefreshRunnable, UPDATE_INTERVAL);
         };
 
     }

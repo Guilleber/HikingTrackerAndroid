@@ -2,11 +2,13 @@ package com.guilleber.hikingtracker;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.location.Location;
+import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 
 import java.util.Vector;
@@ -29,20 +31,38 @@ public class OfflineMap extends View {
     private Vector<Double> mLatMemory = new Vector<>();
     private Vector<Double> mLngMemory = new Vector<>();
 
-    public OfflineMap(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+    private ScaleGestureDetector mScaleDetector;
+    private float mScaleFactor;
+
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            mScaleFactor *= detector.getScaleFactor();
+            mScaleFactor = Math.max(0.02f, Math.min(mScaleFactor, 1.0f));
+            invalidate();
+            return true;
+        }
     }
 
-    private void init() {
+    public OfflineMap(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+
+        init_colors();
+    }
+
+    private void init_colors() {
         mCircleFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mCircleFillPaint.setStyle(Paint.Style.FILL);
-        mCircleFillPaint.setColor(0xff00b0ff);
+        mCircleFillPaint.setColor(0xFF434359);
+        //mCircleFillPaint.setColor(com.google.android.material.R.attr.colorPrimaryVariant);
 
         mCircleStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mCircleStrokePaint.setStyle(Paint.Style.STROKE);
         mCircleStrokePaint.setStrokeWidth(5);
-        mCircleStrokePaint.setColor(0xff216ed3);
+        mCircleStrokePaint.setColor(0xFF26263A);
+        //mCircleStrokePaint.setColor(com.google.android.material.R.attr.colorPrimary);
 
         setBackgroundColor(0xffeceff1);
     }
@@ -59,6 +79,12 @@ public class OfflineMap extends View {
         int hPad = getPaddingTop() + getPaddingBottom();
         mWidth = w - wPad;
         mHeight = h - hPad;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mScaleDetector.onTouchEvent(event);
+        return true;
     }
 
     public void setPosMemory(Vector<Double> latMemory, Vector<Double> lngMemory) {
@@ -82,8 +108,8 @@ public class OfflineMap extends View {
         int xMiddle = mWidth/2;
         int yMiddle = mHeight/2;
         for(int i = 0; i < mLatMemory.size(); i++) {
-            int x = xMiddle + (int) (mConvertRatioX*(mLngMemory.elementAt(i) - mLngMemory.lastElement()));
-            int y = yMiddle + (int) (mConvertRatioY*(mLatMemory.lastElement() - mLatMemory.elementAt(i)));
+            int x = xMiddle + (int) (mScaleFactor*mConvertRatioX*(mLngMemory.elementAt(i) - mLngMemory.lastElement()));
+            int y = yMiddle + (int) (mScaleFactor*mConvertRatioY*(mLatMemory.lastElement() - mLatMemory.elementAt(i)));
             drawCircle(canvas, x, y);
         }
     }

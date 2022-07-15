@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:text="HickingTracker"
                 android:textColor="?attr/colorOnPrimary"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 tools:ignore="DuplicateIds" />
         </androidx.appcompat.widget.Toolbar>
 
@@ -64,6 +64,8 @@
                 </Button>
                 <ToggleButton
                     android:id="@+id/pause_button"
+                    android:theme="@style/Theme.HikingTracker"
+                    android:shadowColor="?attr/colorSecondaryVariant"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -84,66 +86,156 @@
             </LinearLayout>
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp">
-                <TextView
-                    android:id="@+id/lat_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20dp"
-                    android:text="Latitude: "/>
-                <TextView
-                    android:id="@+id/lat"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0.0"
-                    android:textSize="20dp"
-                    android:layout_toRightOf="@+id/lat_label"/>
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp">
-                <TextView
-                    android:id="@+id/lng_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20dp"
-                    android:text="Longitude: "/>
-                <TextView
-                    android:id="@+id/lng"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0.0"
-                    android:textSize="20dp"
-                    android:layout_toRightOf="@+id/lng_label"/>
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp">
-                <TextView
-                    android:id="@+id/alt_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20dp"
-                    android:text="Altitude: "/>
-                <TextView
-                    android:id="@+id/alt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0.0"
-                    android:textSize="20dp"
-                    android:layout_toRightOf="@+id/alt_label"/>
-            </RelativeLayout>
-            <com.guilleber.hikingtracker.OfflineMap
-                android:id="@+id/offline_map"
-                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="16dp"/>
+                android:layout_margin="16dp">
+                <com.guilleber.hikingtracker.OfflineMap
+                    android:id="@+id/offline_map"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="4dp"
+                        android:background="#80FFFFFF">
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:id="@+id/lat_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="20sp"
+                                android:text="LAT: "/>
+                            <TextView
+                                android:id="@+id/lat"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0.0"
+                                android:textSize="20sp"
+                                android:layout_alignParentEnd="true"/>
+                        </RelativeLayout>
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:id="@+id/lng_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="20sp"
+                                android:text="LNG: "/>
+                            <TextView
+                                android:id="@+id/lng"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0.0"
+                                android:textSize="20sp"
+                                android:layout_alignParentEnd="true"/>
+                        </RelativeLayout>
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:id="@+id/alt_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="20dp"
+                                android:text="ALT: "/>
+                            <TextView
+                                android:id="@+id/alt"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 m"
+                                android:textSize="20dp"
+                                android:layout_alignParentEnd="true"/>
+                        </RelativeLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="#80FFFFFF">
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:id="@+id/strt_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="20sp"
+                                android:text="STRT: "/>
+                            <TextView
+                                android:id="@+id/strt"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="00:00"
+                                android:textSize="20sp"
+                                android:layout_alignParentEnd="true"/>
+                        </RelativeLayout>
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:id="@+id/head_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="20sp"
+                                android:text="HEAD: "/>
+                            <TextView
+                                android:id="@+id/head"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0.0"
+                                android:textSize="20sp"
+                                android:layout_alignParentEnd="true"/>
+                        </RelativeLayout>
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp">
+                            <TextView
+                                android:id="@+id/spd_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="20dp"
+                                android:text="SPD: "/>
+                            <TextView
+                                android:id="@+id/spd"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 km/h"
+                                android:textSize="20dp"
+                                android:layout_alignParentEnd="true"/>
+                        </RelativeLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </RelativeLayout>
         </LinearLayout>
     </LinearLayout>
 

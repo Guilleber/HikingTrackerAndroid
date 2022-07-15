@@ -11,7 +11,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
@@ -35,9 +34,9 @@ public class GPSTrackingService extends Service {
     private final int mMinDistBetween = 10;
 
     private Location mCurrLocation = null;
-    private Vector<Double> mLatMemory = new Vector<>();
-    private Vector<Double> mLngMemory = new Vector<>();
-    private Vector<Integer> mAltMemory = new Vector<>();
+    private final Vector<Double> mLatMemory = new Vector<>();
+    private final Vector<Double> mLngMemory = new Vector<>();
+    private final Vector<Integer> mAltMemory = new Vector<>();
 
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
