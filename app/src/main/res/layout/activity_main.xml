@@ -97,7 +97,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="150dp"
                     android:layout_margin="8dp"
-                    android:padding="8dp"
                     android:background="#80FFFFFF"
                     android:layout_alignParentBottom="true">
                     <com.guilleber.hikingtracker.ElevationMap
@@ -135,7 +134,7 @@
                                 android:id="@+id/lat"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="0.0"
+                                android:text="0.00"
                                 android:textSize="20sp"
                                 android:layout_alignParentEnd="true"/>
                         </RelativeLayout>
@@ -154,7 +153,7 @@
                                 android:id="@+id/lng"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="0.0"
+                                android:text="0.00"
                                 android:textSize="20sp"
                                 android:layout_alignParentEnd="true"/>
                         </RelativeLayout>
