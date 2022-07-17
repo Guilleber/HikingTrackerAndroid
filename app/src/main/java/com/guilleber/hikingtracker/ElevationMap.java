@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.View;
@@ -13,13 +14,17 @@ import java.util.Vector;
 public class ElevationMap extends View {
     private Paint mLinePaint;
     private Paint mDashPaint;
+    private Paint mFillPaint;
     private TextPaint mTextPaint;
+
+    private Path mFillPath = new Path();
 
     private int mWidth;
     private int mHeight;
     private int[] mMinMax = new int[4];
     private int mLastMinMaxUpdate = 0;
-    private final int mMarginSize = 50;
+    private final int mMarginSizeW = 30;
+    private final int mMarginSizeH = 50;
 
     private Vector<Integer> mAltMemory = new Vector<>();
 
@@ -47,6 +52,12 @@ public class ElevationMap extends View {
         mDashPaint.setColor(0xFF26263A);
         mDashPaint.setPathEffect(new DashPathEffect(new float[]{20, 10}, 0));
 
+        mFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mFillPaint.setStyle(Paint.Style.FILL);
+        mFillPaint.setColor(0x8026263A);
+
+        mFillPath.setFillType(Path.FillType.EVEN_ODD);
+
         mTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         mTextPaint.setColor(0xFF26263A);
         mTextPaint.setTextSize(30);
@@ -59,8 +70,8 @@ public class ElevationMap extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         int wPad = getPaddingLeft() + getPaddingRight();
         int hPad = getPaddingTop() + getPaddingBottom();
-        mWidth = w - wPad - 2*mMarginSize;
-        mHeight = h - hPad - 2*mMarginSize;
+        mWidth = w - wPad - 2*mMarginSizeW;
+        mHeight = h - hPad - 2*mMarginSizeH;
     }
 
     @Override
@@ -80,13 +91,27 @@ public class ElevationMap extends View {
         if(nbPoints < 2)
             return;
 
-        canvas.drawText(mMinMax[3] + " m", mMarginSize, mHeight + mMarginSize - yRatio*(mMinMax[3] - mMinMax[1]) - 10, mTextPaint);
-        canvas.drawLine(mMarginSize, mHeight + mMarginSize - yRatio*(mMinMax[3] - mMinMax[1]), mWidth + mMarginSize, mHeight + mMarginSize - yRatio*(mMinMax[3] - mMinMax[1]), mDashPaint);
-        canvas.drawText(mMinMax[1] + " m", mMarginSize, mHeight + mMarginSize + 30, mTextPaint);
-        canvas.drawLine(mMarginSize, mHeight + mMarginSize, mWidth + mMarginSize, mHeight + mMarginSize, mDashPaint);
+        canvas.drawText(mMinMax[3] + " m", mMarginSizeW, mHeight + mMarginSizeH - yRatio*(mMinMax[3] - mMinMax[1]) - 10, mTextPaint);
+        canvas.drawLine(mMarginSizeW, mHeight + mMarginSizeH - yRatio*(mMinMax[3] - mMinMax[1]), mWidth + mMarginSizeW, mHeight + mMarginSizeH - yRatio*(mMinMax[3] - mMinMax[1]), mDashPaint);
+        canvas.drawText(mMinMax[1] + " m", mMarginSizeW, mHeight + mMarginSizeH + 30, mTextPaint);
+        canvas.drawLine(mMarginSizeW, mHeight + mMarginSizeH, mWidth + mMarginSizeW, mHeight + mMarginSizeH, mDashPaint);
 
+        int xStart, yStart, xEnd, yEnd;
         for(int i = mAltMemory.size() - nbPoints + 1; i < mAltMemory.size(); i++) {
-            canvas.drawLine(mMarginSize + xRatio*(i-1), mHeight + mMarginSize - yRatio*(mAltMemory.elementAt(i-1) - mMinMax[1]), mMarginSize + xRatio*i, mHeight + mMarginSize - yRatio*(mAltMemory.elementAt(i) - mMinMax[1]), mLinePaint);
+            xStart = mMarginSizeW + (int)(xRatio*(i-1));
+            yStart = mHeight + mMarginSizeH - (int)(yRatio*(mAltMemory.elementAt(i-1) - mMinMax[1]));
+            xEnd = mMarginSizeW + (int)(xRatio*i);
+            yEnd = mHeight + mMarginSizeH - (int)(yRatio*(mAltMemory.elementAt(i) - mMinMax[1]));
+
+            mFillPath.rewind();
+            mFillPath.moveTo(xStart, yStart);
+            mFillPath.lineTo(xEnd, yEnd);
+            mFillPath.lineTo(xEnd, mMarginSizeH + mHeight);
+            mFillPath.lineTo(xStart, mMarginSizeH + mHeight);
+            mFillPath.lineTo(xStart, yStart);
+            canvas.drawPath(mFillPath, mFillPaint);
+
+            canvas.drawLine(xStart, yStart, xEnd, yEnd, mLinePaint);
         }
     }
 
