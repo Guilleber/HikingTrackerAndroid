@@ -17,7 +17,7 @@ public class ElevationMap extends View {
     private Paint mFillPaint;
     private TextPaint mTextPaint;
 
-    private Path mFillPath = new Path();
+    private final Path mPath = new Path();
 
     private int mWidth;
     private int mHeight;
@@ -56,7 +56,7 @@ public class ElevationMap extends View {
         mFillPaint.setStyle(Paint.Style.FILL);
         mFillPaint.setColor(0x8026263A);
 
-        mFillPath.setFillType(Path.FillType.EVEN_ODD);
+        mPath.setFillType(Path.FillType.EVEN_ODD);
 
         mTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         mTextPaint.setColor(0xFF26263A);
@@ -82,10 +82,10 @@ public class ElevationMap extends View {
 
         computeMinMax();
 
-        float yRatio = (float)Math.max(mMinMax[3] - mMinMax[1], 50);
+        float yRatio = (float)Math.max(mMinMax[3] - mMinMax[1], 20);
         yRatio = mHeight/yRatio;
 
-        int nbPoints = Math.min(mAltMemory.size(), mWidth/4);
+        int nbPoints = mAltMemory.size();
         float xRatio = mWidth/(float)(nbPoints - 1);
 
         if(nbPoints < 2)
@@ -96,23 +96,23 @@ public class ElevationMap extends View {
         canvas.drawText(mMinMax[1] + " m", mMarginSizeW, mHeight + mMarginSizeH + 30, mTextPaint);
         canvas.drawLine(mMarginSizeW, mHeight + mMarginSizeH, mWidth + mMarginSizeW, mHeight + mMarginSizeH, mDashPaint);
 
-        int xStart, yStart, xEnd, yEnd;
-        for(int i = mAltMemory.size() - nbPoints + 1; i < mAltMemory.size(); i++) {
-            xStart = mMarginSizeW + (int)(xRatio*(i-1));
-            yStart = mHeight + mMarginSizeH - (int)(yRatio*(mAltMemory.elementAt(i-1) - mMinMax[1]));
-            xEnd = mMarginSizeW + (int)(xRatio*i);
-            yEnd = mHeight + mMarginSizeH - (int)(yRatio*(mAltMemory.elementAt(i) - mMinMax[1]));
+        int x, y, x0, y0;
+        x0 = mMarginSizeW;
+        y0 = mHeight + mMarginSizeH - (int)(yRatio*(mAltMemory.elementAt(0) - mMinMax[1]));
+        mPath.rewind();
+        mPath.moveTo(x0, y0);
+        for(int i = 1; i < mAltMemory.size(); i += 1) {
+            x = mMarginSizeW + (int)(xRatio*i);
+            y = mHeight + mMarginSizeH - (int)(yRatio*(mAltMemory.elementAt(i) - mMinMax[1]));
 
-            mFillPath.rewind();
-            mFillPath.moveTo(xStart, yStart);
-            mFillPath.lineTo(xEnd, yEnd);
-            mFillPath.lineTo(xEnd, mMarginSizeH + mHeight);
-            mFillPath.lineTo(xStart, mMarginSizeH + mHeight);
-            mFillPath.lineTo(xStart, yStart);
-            canvas.drawPath(mFillPath, mFillPaint);
-
-            canvas.drawLine(xStart, yStart, xEnd, yEnd, mLinePaint);
+            mPath.lineTo(x, y);
         }
+
+        canvas.drawPath(mPath, mLinePaint);
+        mPath.lineTo(mMarginSizeW + mWidth, mMarginSizeH + mHeight);
+        mPath.lineTo(mMarginSizeW, mMarginSizeH + mHeight);
+        mPath.lineTo(x0, y0);
+        canvas.drawPath(mPath, mFillPaint);
     }
 
     public void setAltMemory(Vector<Integer> altMemory) {

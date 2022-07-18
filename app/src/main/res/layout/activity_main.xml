@@ -95,7 +95,7 @@
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="150dp"
+                    android:layout_height="100dp"
                     android:layout_margin="8dp"
                     android:background="#80FFFFFF"
                     android:layout_alignParentBottom="true">
@@ -128,14 +128,14 @@
                                 android:id="@+id/lat_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="20sp"
-                                android:text="LAT: "/>
+                                android:textSize="15sp"
+                                android:text="LATITUDE"/>
                             <TextView
                                 android:id="@+id/lat"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0.00"
-                                android:textSize="20sp"
+                                android:textSize="15sp"
                                 android:layout_alignParentEnd="true"/>
                         </RelativeLayout>
                         <RelativeLayout
@@ -147,14 +147,14 @@
                                 android:id="@+id/lng_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="20sp"
-                                android:text="LNG: "/>
+                                android:textSize="15sp"
+                                android:text="LONGITUDE"/>
                             <TextView
                                 android:id="@+id/lng"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0.00"
-                                android:textSize="20sp"
+                                android:textSize="15sp"
                                 android:layout_alignParentEnd="true"/>
                         </RelativeLayout>
                         <RelativeLayout
@@ -166,14 +166,14 @@
                                 android:id="@+id/alt_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="20dp"
-                                android:text="ALT: "/>
+                                android:textSize="15dp"
+                                android:text="ALTITUDE"/>
                             <TextView
                                 android:id="@+id/alt"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0 m"
-                                android:textSize="20dp"
+                                android:textSize="15dp"
                                 android:layout_alignParentEnd="true"/>
                         </RelativeLayout>
                     </LinearLayout>
@@ -197,14 +197,14 @@
                                 android:id="@+id/strt_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="20sp"
-                                android:text="STRT: "/>
+                                android:textSize="15sp"
+                                android:text="START TIME"/>
                             <TextView
                                 android:id="@+id/strt"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="00:00"
-                                android:textSize="20sp"
+                                android:textSize="15sp"
                                 android:layout_alignParentEnd="true"/>
                         </RelativeLayout>
                         <RelativeLayout
@@ -216,14 +216,14 @@
                                 android:id="@+id/head_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="20sp"
-                                android:text="HEAD: "/>
+                                android:textSize="15sp"
+                                android:text="HEADING"/>
                             <TextView
                                 android:id="@+id/head"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="0.0"
-                                android:textSize="20sp"
+                                android:text="0"
+                                android:textSize="15sp"
                                 android:layout_alignParentEnd="true"/>
                         </RelativeLayout>
                         <RelativeLayout
@@ -235,14 +235,14 @@
                                 android:id="@+id/spd_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="20dp"
-                                android:text="SPD: "/>
+                                android:textSize="15dp"
+                                android:text="SPEED"/>
                             <TextView
                                 android:id="@+id/spd"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0 km/h"
-                                android:textSize="20dp"
+                                android:textSize="15dp"
                                 android:layout_alignParentEnd="true"/>
                         </RelativeLayout>
                     </LinearLayout>

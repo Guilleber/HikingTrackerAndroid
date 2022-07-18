@@ -25,6 +25,8 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Vector;
 
 public class GPSTrackingService extends Service {
