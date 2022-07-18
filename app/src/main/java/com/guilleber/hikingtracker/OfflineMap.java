@@ -11,6 +11,8 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+import org.w3c.dom.Text;
+
 import java.util.Vector;
 
 /**
@@ -44,10 +46,23 @@ public class OfflineMap extends View {
         }
     }
 
+    private RotationGestureDetector mRotationDetector;
+    private double mRotationAngle = 0.0;
+    private Point mPoint = new Point(0.0, 0.0);
+
+    private class RotationListener implements RotationGestureDetector.OnRotationGestureListener {
+        @Override
+        public void OnRotation(RotationGestureDetector rotationDetector) {
+            mRotationAngle = -rotationDetector.getAngle();
+            invalidate();
+        }
+    }
+
     public OfflineMap(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        mRotationDetector = new RotationGestureDetector(new RotationListener());
 
         init_colors();
     }
@@ -84,6 +99,7 @@ public class OfflineMap extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         mScaleDetector.onTouchEvent(event);
+        mRotationDetector.onTouchEvent(event);
         return true;
     }
 
@@ -91,6 +107,30 @@ public class OfflineMap extends View {
         assert latMemory.size() == lngMemory.size();
         mLatMemory = latMemory;
         mLngMemory = lngMemory;
+    }
+
+    private class Point {
+        public Point(double initX, double initY) {
+            x = initX;
+            y = initY;
+        }
+
+        public double x;
+        public double y;
+    }
+
+    private void adaptForRotation() {
+        if(mPoint.y == 0.0) {
+            mPoint.y = mPoint.x*Math.sin(mRotationAngle);
+            mPoint.x = mPoint.x*Math.cos(mRotationAngle);
+        } else if(mPoint.x == 0.0) {
+            mPoint.x = -mPoint.y*Math.sin(mRotationAngle);
+            mPoint.y = mPoint.y*Math.cos(mRotationAngle);
+        } else {
+            double theta0 = Math.atan(mPoint.y / mPoint.x);
+            mPoint.x = (mPoint.x * Math.cos(theta0 + mRotationAngle)) / Math.cos(theta0);
+            mPoint.y = (mPoint.y * Math.sin(theta0 + mRotationAngle)) / Math.sin(theta0);
+        }
     }
 
     @Override
@@ -108,9 +148,12 @@ public class OfflineMap extends View {
         int xMiddle = mWidth/2;
         int yMiddle = mHeight/2;
         for(int i = 0; i < mLatMemory.size(); i++) {
-            int x = xMiddle + (int) (mScaleFactor*mConvertRatioX*(mLngMemory.elementAt(i) - mLngMemory.lastElement()));
-            int y = yMiddle + (int) (mScaleFactor*mConvertRatioY*(mLatMemory.lastElement() - mLatMemory.elementAt(i)));
-            drawCircle(canvas, x, y);
+            mPoint.x = mScaleFactor*mConvertRatioX*(mLngMemory.elementAt(i) - mLngMemory.lastElement());
+            mPoint.y = mScaleFactor*mConvertRatioY*(mLatMemory.lastElement() - mLatMemory.elementAt(i));
+            adaptForRotation();
+            mPoint.x = xMiddle + mPoint.x;
+            mPoint.y = yMiddle + mPoint.y;
+            drawCircle(canvas, (int)mPoint.x, (int)mPoint.y);
         }
     }
 }
