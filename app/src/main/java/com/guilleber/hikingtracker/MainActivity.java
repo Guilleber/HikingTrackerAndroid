@@ -5,6 +5,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -44,6 +48,44 @@ public class MainActivity extends AppCompatActivity {
 
     private OfflineMap mOfflineMap;
     private ElevationMap mElevationMap;
+
+    private SensorManager mSensorManager;
+    private Sensor mCompass;
+    private Sensor mAccelerometer;
+    private SensorListener mSensorListener;
+
+    float[] mGravity;
+    float[] mGeomagnetic;
+
+    private class SensorListener implements SensorEventListener {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+                mGravity = event.values;
+
+            if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+                mGeomagnetic = event.values;
+
+            if (mGravity != null && mGeomagnetic != null) {
+                float R[] = new float[9];
+                float I[] = new float[9];
+
+                if (SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic)) {
+
+                    // orientation contains azimut, pitch and roll
+                    float orientation[] = new float[3];
+                    SensorManager.getOrientation(R, orientation);
+
+                    mOfflineMap.updateOrientation(-orientation[0] * 360 / (2 * 3.14159f));
+                }
+            }
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int i) {
+
+        }
+    }
 
     private final InputFilter mFilter = (source, start, end, dest, dstart, dend) -> {
         return source.toString().substring(start, end).replace(" ", "_").replaceAll("[^_a-zA-Z0-9]", "");
@@ -88,11 +130,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mCompass = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorListener = new SensorListener();
+        mSensorManager.registerListener(mSensorListener, mCompass, SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(mSensorListener, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
 
         mNameEdit = findViewById(R.id.name_edittext);
         mNameEdit.setFilters(new InputFilter[] {mFilter});
