@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.location.Location;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -30,6 +31,11 @@ public class OfflineMap extends View {
     private float mConvertRatioX = -1;
     private float mConvertRatioY = -1;
 
+    private int mMarginTop;
+    private int mMarginBot;
+    private int mMarginLeft;
+    private int mMarginRight;
+
     private Vector<Double> mLatMemory = new Vector<>();
     private Vector<Double> mLngMemory = new Vector<>();
 
@@ -53,7 +59,7 @@ public class OfflineMap extends View {
     private class RotationListener implements RotationGestureDetector.OnRotationGestureListener {
         @Override
         public void OnRotation(RotationGestureDetector rotationDetector) {
-            mRotationAngle = -rotationDetector.getAngle();
+            mRotationAngle = rotationDetector.getAngle();
             invalidate();
         }
     }
@@ -94,6 +100,14 @@ public class OfflineMap extends View {
         int hPad = getPaddingTop() + getPaddingBottom();
         mWidth = w - wPad;
         mHeight = h - hPad;
+        recomputeMargins();
+    }
+
+    private void recomputeMargins() {
+        mMarginTop = mHeight/2 - 225;
+        mMarginBot = mHeight/2 - 325;
+        mMarginLeft = mWidth/2 - 20;
+        mMarginRight = mWidth/2 - 20;
     }
 
     @Override
@@ -120,6 +134,7 @@ public class OfflineMap extends View {
     }
 
     private void adaptForRotation() {
+        mPoint.y *= -1;
         if(mPoint.y == 0.0) {
             mPoint.y = mPoint.x*Math.sin(mRotationAngle);
             mPoint.x = mPoint.x*Math.cos(mRotationAngle);
@@ -131,11 +146,54 @@ public class OfflineMap extends View {
             mPoint.x = (mPoint.x * Math.cos(theta0 + mRotationAngle)) / Math.cos(theta0);
             mPoint.y = (mPoint.y * Math.sin(theta0 + mRotationAngle)) / Math.sin(theta0);
         }
+        mPoint.y *= -1;
+    }
+
+    private void drawBorderMark(Canvas canvas, double angle) {
+        if(angle >= 2*Math.PI)
+            angle -= 2*Math.PI;
+        if(angle < 0.0)
+            angle += 2*Math.PI;
+
+        if(angle <= Math.atan(mMarginTop/(float)mMarginRight) || angle >= Math.atan(-mMarginBot/(float)mMarginRight) + 2*Math.PI) {
+            int y0 = (int) (mMarginRight*Math.tan(angle));
+            int y1 = (int) ((mMarginRight-40)*Math.tan(angle));
+            canvas.drawLine(mWidth/2 + mMarginRight, mHeight/2 - y0, mWidth/2 + mMarginRight - 40, mHeight/2 - y1, mCircleStrokePaint);
+            return;
+        }
+
+        angle -= Math.PI/2;
+        if(angle <= Math.atan(mMarginLeft/(float)mMarginTop)) {
+            int y0 = (int) (mMarginTop*Math.tan(angle));
+            int y1 = (int) ((mMarginTop-50)*Math.tan(angle));
+            canvas.drawLine(mWidth/2 - y0, mHeight/2 - mMarginTop, mWidth/2 - y1, mHeight/2 - mMarginTop + 50, mCircleStrokePaint);
+            return;
+        }
+
+        angle -= Math.PI/2;
+        if(angle <= Math.atan(mMarginBot/(float)mMarginLeft)) {
+            int y0 = (int) (mMarginLeft*Math.tan(angle));
+            int y1 = (int) ((mMarginLeft-40)*Math.tan(angle));
+            canvas.drawLine(mWidth/2 - mMarginLeft, mHeight/2 + y0, mWidth/2 - mMarginLeft + 40, mHeight/2 + y1, mCircleStrokePaint);
+            return;
+        }
+
+        angle -= Math.PI/2;
+        if(angle <= Math.atan(mMarginRight/(float)mMarginBot)) {
+            int y0 = (int) (mMarginBot*Math.tan(angle));
+            int y1 = (int) ((mMarginBot-40)*Math.tan(angle));
+            canvas.drawLine(mWidth/2 + y0, mHeight/2 + mMarginBot, mWidth/2 + y1, mHeight/2 + mMarginBot - 40, mCircleStrokePaint);
+            return;
+        }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        drawBorderMark(canvas, mRotationAngle);
+        drawBorderMark(canvas, mRotationAngle + Math.PI/2);
+        drawBorderMark(canvas, mRotationAngle + Math.PI);
+        drawBorderMark(canvas, mRotationAngle + 3*Math.PI/2);
         if(mLatMemory.size() == 0)
             return;
         if(mConvertRatioX == -1) {
