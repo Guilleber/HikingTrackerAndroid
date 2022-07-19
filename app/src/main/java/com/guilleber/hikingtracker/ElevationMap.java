@@ -116,7 +116,13 @@ public class ElevationMap extends View {
     }
 
     public void setAltMemory(Vector<Integer> altMemory) {
+        mLastMinMaxUpdate = 0;
+        mMinMax[0] = -1;
+        mMinMax[1] = 32767;
+        mMinMax[2] = -1;
+        mMinMax[3] = 0;
         mAltMemory = altMemory;
+        invalidate();
     }
 
     private void computeMinMax() {
